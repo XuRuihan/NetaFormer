@@ -10,6 +10,7 @@ def get_embedder(multires, embed_type="nerf", input_type="tensor"):
         "embedding_type": embed_type,
         "input_dims": 1,
         "max_freq_log2": multires - 1,
+        # "max_freq_log2": 32,
         "num_freqs": multires,
     }
     if input_type == "tensor":

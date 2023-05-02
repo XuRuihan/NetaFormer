@@ -241,8 +241,16 @@ class Encoder(nn.Module):
                 ]
             )
 
-    def forward(self, x):
+            num_in_degree = 10
+            num_out_degree = 10
+            self.in_degree_encoder = nn.Embedding(num_in_degree, config.graph_d_model)
+            self.out_degree_encoder = nn.Embedding(num_out_degree, config.graph_d_model)
+
+    def forward(self, x, graph_indices):
         B, _, _ = x.shape
+
+        adjs, in_degree, out_degree, rel_pos = graph_indices
+        x = x + self.in_degree_encoder(in_degree) + self.out_degree_encoder(out_degree)
 
         # 1st stage: Encoder
         for i, layer in enumerate(self.layers):

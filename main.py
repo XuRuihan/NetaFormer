@@ -52,17 +52,21 @@ def train(config):
             if "nasbench" in config.dataset:
                 if config.lambda_consistency > 0:
                     data_0, data_1 = batch_data
-                    codes0, v_acc0, t_acc0 = data_0
-                    codes1, v_acc1, t_acc1 = data_1
-                    codes, gt = (
+                    codes0, v_acc0, t_acc0, adjs0, in_degree0, out_degree0, rel_pos0 = data_0
+                    codes1, v_acc1, t_acc1, adjs1, in_degree1, out_degree1, rel_pos1 = data_1
+                    codes, gt, adjs, in_degree, out_degree = (
                         torch.cat([codes0, codes1], dim=0),
                         torch.cat([v_acc0, v_acc1], dim=0),
+                        torch.cat([adjs0, adjs1], dim=0),
+                        torch.cat([in_degree0, in_degree1], dim=0),
+                        torch.cat([out_degree0, out_degree1], dim=0),
                     )
                 else:
-                    codes, v_acc, t_acc = batch_data
+                    codes, v_acc, t_acc, adjs, in_degree, out_degree = batch_data
                     gt = v_acc
                 codes, gt = codes.to(config.device), gt.to(config.device)
-                logits = net(None, None, codes, None)
+                in_degree, out_degree, adjs = in_degree.to(config.device), out_degree.to(config.device), adjs.to(config.device)
+                logits = net([in_degree, out_degree], adjs, codes, None)
 
             elif config.dataset == "nnlqp":
                 codes, gt, sf = (
@@ -222,12 +226,12 @@ def infer(dataloader, net, dataset, device=None, isTest=False):
         net.eval()
         for bid, batch_data in enumerate(dataloader):
             if "nasbench" in dataset:
-                codes, v_accus, t_accus = batch_data
+                codes, v_accus, t_accus, adjs, in_degree, out_degree = batch_data
                 gt = t_accus if isTest else v_accus
                 logits = (
-                    net(None, None, codes.to(device), None)
+                    net([in_degree.to(device), out_degree.to(device)], adjs.to(device), codes.to(device), None)
                     if device != None
-                    else net(None, None, codes, None)
+                    else net(None, adjs, codes, None)
                 )
             elif dataset == "nnlqp":
                 codes, gt, sf = (

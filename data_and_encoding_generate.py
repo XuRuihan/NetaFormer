@@ -29,9 +29,6 @@ def args_loader():
         "--multires_x", type=int, default=32, help="dim of operation encoding"
     )
     parser.add_argument(
-        "--multires_r", type=int, default=32, help="dim of topo encoding"
-    )
-    parser.add_argument(
         "--multires_p", type=int, default=32, help="dim of position encoding"
     )
     parser.add_argument(
@@ -55,7 +52,7 @@ if __name__ == "__main__":
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
 
-    dx, dr, dp = args.multires_x, args.multires_r, args.multires_p
+    dx, dp = args.multires_x, args.multires_p
     if args.load_all:
         with open(args.data_path) as f:
             archs = json.load(f)
@@ -75,7 +72,6 @@ if __name__ == "__main__":
                         arch["module_operations"],
                         arch["module_adjacency"],
                         dx,
-                        dr,
                         dp,
                         args.embed_type,
                     ),
@@ -94,7 +90,6 @@ if __name__ == "__main__":
                         arch["module_operations"],
                         arch["module_adjacency"],
                         dx,
-                        dr,
                         dp,
                         args.embed_type,
                     ),
@@ -141,7 +136,6 @@ if __name__ == "__main__":
                         archs[str(i)]["module_operations"],
                         archs[str(i)]["module_adjacency"],
                         dx,
-                        dr,
                         dp,
                         args.embed_type,
                     ),
@@ -163,7 +157,6 @@ if __name__ == "__main__":
                         archs[str(i)]["module_operations"],
                         archs[str(i)]["module_adjacency"],
                         dx,
-                        dr,
                         dp,
                         args.embed_type,
                     ),
@@ -184,7 +177,6 @@ if __name__ == "__main__":
                         archs[str(i)]["module_operations"],
                         archs[str(i)]["module_adjacency"],
                         dx,
-                        dr,
                         dp,
                         args.embed_type,
                     ),
@@ -228,7 +220,6 @@ if __name__ == "__main__":
                         archs[str(i)]["module_operations"],
                         archs[str(i)]["module_adjacency"],
                         dx,
-                        dr,
                         dp,
                         args.embed_type,
                     ),
@@ -253,7 +244,6 @@ if __name__ == "__main__":
                             archs[str(i)]["module_operations"],
                             archs[str(i)]["module_adjacency"],
                             dx,
-                            dr,
                             dp,
                             args.embed_type,
                         ),
@@ -276,7 +266,6 @@ if __name__ == "__main__":
                         archs[str(i)]["module_operations"],
                         archs[str(i)]["module_adjacency"],
                         dx,
-                        dr,
                         dp,
                         args.embed_type,
                     ),
