@@ -60,7 +60,6 @@ def argLoader():
         default=32,
         help="Operations encoding dim = 2*multires_x",
     )
-
     parser.add_argument(
         "--multires_p",
         type=int,

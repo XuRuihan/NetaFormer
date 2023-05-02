@@ -2,7 +2,7 @@ import os
 import argparse
 import json
 import random
-from tqdm import tqdm, trange
+from tqdm import tqdm
 
 import torch
 from model.narformer import tokenizer
@@ -271,4 +271,3 @@ if __name__ == "__main__":
                     ),
                 }
             torch.save(test_data, os.path.join(save_dir, "test.pt"))
-
