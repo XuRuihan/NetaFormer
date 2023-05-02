@@ -1,10 +1,10 @@
-BASE_DIR="./"
+BASE_DIR="."
 
 python $BASE_DIR/main.py \
     --do_train \
     --device 3 \
     --dataset nasbench201 \
-    --data_path "$BASE_DIR/data/nasbench201/all_nasbench201.pt" \
+    --data_path "$BASE_DIR/data/nasbench201-bigpos/all_nasbench201.pt" \
     --percent 781 \
     --batch_size 128 \
     --graph_d_model 192 \
@@ -16,6 +16,6 @@ python $BASE_DIR/main.py \
     --model_ema \
     --learning_rate 1e-4 \
     --lambda_diff 0.1 \
-    --save_path "checkpoints_5%/" \
+    --save_path "output/narformer_nasbench201_bigpos_2_5%/" \
     --embed_type "nerf" \
     --use_extra_token \

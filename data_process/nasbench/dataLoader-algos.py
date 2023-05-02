@@ -1,6 +1,12 @@
 import torch
 import torch.utils.data as Data
 
+import numpy as np
+import pyximport
+
+pyximport.install(setup_args={"include_dirs": np.get_include()}, reload_support=True)
+import algos
+
 
 class NasbenchDataset(Data.Dataset):
     def __init__(
@@ -104,7 +110,11 @@ class NasbenchDataset(Data.Dataset):
         V_A = torch.tensor([data["validation_accuracy"]], dtype=torch.float32)
         T_A = torch.tensor([data["test_accuracy"]], dtype=torch.float32)
         # return ops, adj, code, P, T, V_A, T_A
-        return code, V_A, T_A
+        in_degree = adj.sum(0)
+        out_degree = adj.sum(1)
+        shortest_path, path = algos.floyd_warshall(adj.numpy())
+        rel_pos = torch.from_numpy(shortest_path).long()
+        return code, V_A, T_A, adj, in_degree, out_degree, rel_pos
 
     def preprocess_201(self, data):
         adj = torch.LongTensor(data["adj"])
@@ -116,7 +126,11 @@ class NasbenchDataset(Data.Dataset):
         t_acc = torch.tensor([data["test_accuracy"]]) * 0.01
         t_acc_avg = torch.tensor([data["test_accuracy_avg"]]) * 0.01
         # return ops, adj, code, time, v_acc, v_acc_avg, t_acc, t_acc_avg
-        return code, v_acc_avg, t_acc_avg
+        in_degree = adj.sum(0)
+        out_degree = adj.sum(1)
+        shortest_path, path = algos.floyd_warshall(adj.numpy())
+        rel_pos = torch.from_numpy(shortest_path).long()
+        return code, v_acc_avg, t_acc_avg, adj, in_degree, out_degree, rel_pos
 
     def __len__(self):
         return len(self.data)

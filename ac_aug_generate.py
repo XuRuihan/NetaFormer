@@ -26,9 +26,6 @@ def args_loader():
         "--multires_x", type=int, default=32, help="dim of operation encoding"
     )
     parser.add_argument(
-        "--multires_r", type=int, default=32, help="dim of topo encoding"
-    )
-    parser.add_argument(
         "--multires_p", type=int, default=32, help="dim of position encoding"
     )
     parser.add_argument(
@@ -53,13 +50,13 @@ def upper_tri_matrix(matrix):
 
 def ac_aug_generate(adj, ops):
     num_vertices = len(ops)
-    temp = [i for i in range(1, num_vertices - 1)]
-    temp_list = itertools.permutations(temp)
+    ordered_index = list(range(1, num_vertices - 1))
+    all_perms = itertools.permutations(ordered_index)
     auged_adjs = [adj]
     auged_opss = [ops]
 
-    for id, label in enumerate(temp_list):
-        if id == 2:
+    for id, label in enumerate(all_perms):
+        if id == 2:  # 这里是不是不太合理？意味着所有sample至多只有一个augment
             break
         label = [0] + list(label) + [num_vertices - 1]
         P = np.zeros((num_vertices, num_vertices))
@@ -84,7 +81,7 @@ if __name__ == "__main__":
     args = args_loader()
     save_dir = args.data_path.split()[0]
 
-    dx, dr, dp = args.multires_x, args.multires_r, args.multires_p
+    dx, dp = args.multires_x, args.multires_p
 
     train_data = torch.load(args.data_path)
 
@@ -99,7 +96,7 @@ if __name__ == "__main__":
         adj = train_data[key]["adj"]
         auged_adjs, auged_opss = ac_aug_generate(adj, ops)
         netcodes = [
-            tokenizer(auged_ops, auged_adj, dx, dr, dp, args.embed_type)
+            tokenizer(auged_ops, auged_adj, dx, dp, args.embed_type)
             for auged_ops, auged_adj in zip(auged_opss, auged_adjs)
         ]
         if len(auged_opss) > 0:

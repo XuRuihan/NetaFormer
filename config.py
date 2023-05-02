@@ -61,12 +61,6 @@ def argLoader():
         help="Operations encoding dim = 2*multires_x",
     )
     parser.add_argument(
-        "--multires_r",
-        type=int,
-        default=32,
-        help="Source position encoding dim = 2*multires_r",
-    )
-    parser.add_argument(
         "--multires_p",
         type=int,
         default=32,
