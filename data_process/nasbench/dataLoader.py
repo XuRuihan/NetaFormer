@@ -104,19 +104,19 @@ class NasbenchDataset(Data.Dataset):
         V_A = torch.tensor([data["validation_accuracy"]], dtype=torch.float32)
         T_A = torch.tensor([data["test_accuracy"]], dtype=torch.float32)
         # return ops, adj, code, P, T, V_A, T_A
-        in_degree_by_op = adj.sum(0)
-        out_degree_by_op = adj.sum(1)
-        in_degree = [torch.tensor([0])]
-        out_degree = [torch.tensor([1])]
-        for i in range(1, len(ops)):
-            for j in range(i):
-                if adj[j][i] == 1:
-                    in_degree.append(in_degree_by_op[i:i+1])
-                    out_degree.append(out_degree_by_op[i:i+1])
-        in_degree.append(torch.tensor([1]))
-        out_degree.append(torch.tensor([0]))
-        in_degree = torch.cat(in_degree)
-        out_degree = torch.cat(out_degree)
+        in_degree = adj.sum(0)
+        out_degree = adj.sum(1)
+        # in_degree = [torch.tensor([0])]
+        # out_degree = [torch.tensor([1])]
+        # for i in range(1, len(ops)):
+        #     for j in range(i):
+        #         if adj[j][i] == 1:
+        #             in_degree.append(in_degree_by_op[i:i+1])
+        #             out_degree.append(out_degree_by_op[i:i+1])
+        # in_degree.append(torch.tensor([1]))
+        # out_degree.append(torch.tensor([0]))
+        # in_degree = torch.cat(in_degree)
+        # out_degree = torch.cat(out_degree)
         return code, V_A, T_A, adj, in_degree, out_degree
 
     def preprocess_201(self, data):
@@ -129,19 +129,19 @@ class NasbenchDataset(Data.Dataset):
         t_acc = torch.tensor([data["test_accuracy"]]) * 0.01
         t_acc_avg = torch.tensor([data["test_accuracy_avg"]]) * 0.01
         # return ops, adj, code, time, v_acc, v_acc_avg, t_acc, t_acc_avg
-        in_degree_by_op = adj.sum(0)
-        out_degree_by_op = adj.sum(1)
-        in_degree = [torch.tensor([0])]
-        out_degree = [torch.tensor([1])]
-        for i in range(1, len(ops)):
-            for j in range(i):
-                if adj[j][i] == 1:
-                    in_degree.append(in_degree_by_op[i:i+1])
-                    out_degree.append(out_degree_by_op[i:i+1])
-        in_degree.append(torch.tensor([1]))
-        out_degree.append(torch.tensor([0]))
-        in_degree = torch.cat(in_degree)
-        out_degree = torch.cat(out_degree)
+        in_degree = adj.sum(0)
+        out_degree = adj.sum(1)
+        # in_degree = [torch.tensor([0])]
+        # out_degree = [torch.tensor([1])]
+        # for i in range(1, len(ops)):
+        #     for j in range(i):
+        #         if adj[j][i] == 1:
+        #             in_degree.append(in_degree_by_op[i:i+1])
+        #             out_degree.append(out_degree_by_op[i:i+1])
+        # in_degree.append(torch.tensor([1]))
+        # out_degree.append(torch.tensor([0]))
+        # in_degree = torch.cat(in_degree)
+        # out_degree = torch.cat(out_degree)
         return code, v_acc_avg, t_acc_avg, adj, in_degree, out_degree
 
     def __len__(self):

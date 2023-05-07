@@ -5,60 +5,95 @@ from data_process.position_encoding import get_embedder
 from layers.transformer import Encoder, RegHead
 
 
+# def tokenizer(ops, matrix, dim_x, dim_p, embed_type):
+#     # encode operation
+#     fn, _ = get_embedder(dim_x, embed_type=embed_type)
+#     code_ops_tmp = [fn(torch.tensor([-1], dtype=torch.float32))]
+#     code_ops_tmp += [fn(torch.tensor([op], dtype=torch.float32)) for op in ops]
+#     code_ops_tmp.append(fn(torch.tensor([1e5], dtype=torch.float32)))
+#     # code_ops = torch.stack(code_ops_tmp, dim=0)  # (len, dim_x)
+
+#     # encode self position
+#     fn, _ = get_embedder(dim_p, embed_type=embed_type)
+#     code_pos_tmp = [fn(torch.tensor([-1], dtype=torch.float32))]
+#     code_pos_tmp += [
+#         fn(torch.tensor([i], dtype=torch.float32)) for i in range(len(ops))
+#     ]
+#     code_pos_tmp.append(fn(torch.tensor([1e5], dtype=torch.float32)))
+#     # code_pos = torch.stack(code_pos_tmp, dim=0)  # (len, dim_p)
+
+#     adj = torch.tensor(matrix)
+#     start_idx = torch.argmin(adj.sum(0)) + 1
+#     end_idx = torch.argmin(adj.sum(1)) + 1
+
+#     code = [
+#         torch.cat(
+#             [
+#                 code_ops_tmp[0],
+#                 code_pos_tmp[0],
+#                 code_ops_tmp[start_idx],
+#                 code_pos_tmp[start_idx],
+#             ],
+#             dim=0,
+#         )
+#     ]
+#     for i in range(1, len(ops)):
+#         for j in range(i):
+#             if matrix[j][i] == 1:
+#                 code.append(
+#                     torch.cat(
+#                         [
+#                             code_ops_tmp[j],
+#                             code_pos_tmp[j],
+#                             code_ops_tmp[i],
+#                             code_pos_tmp[i],
+#                         ],
+#                         dim=0,
+#                     )
+#                 )
+#     code.append(
+#         torch.cat(
+#             [code_ops_tmp[end_idx], code_pos_tmp[end_idx], code_ops_tmp[-1], code_pos_tmp[-1],],
+#             dim=0,
+#         )
+#     )
+
+#     code = torch.stack(code)
+#     return code
+
+
 def tokenizer(ops, matrix, dim_x, dim_p, embed_type):
     # encode operation
     fn, _ = get_embedder(dim_x, embed_type=embed_type)
-    code_ops_tmp = [fn(torch.tensor([-1], dtype=torch.float32))]
-    code_ops_tmp += [fn(torch.tensor([op], dtype=torch.float32)) for op in ops]
-    code_ops_tmp.append(fn(torch.tensor([1e5], dtype=torch.float32)))
-    # code_ops = torch.stack(code_ops_tmp, dim=0)  # (len, dim_x)
+    code_ops_tmp = [fn(torch.tensor([op], dtype=torch.float32)) for op in ops]
+    code_ops = torch.stack(code_ops_tmp, dim=0)  # (len, dim_x)
 
-    # encode self position
+    # encode operation position
     fn, _ = get_embedder(dim_p, embed_type=embed_type)
-    code_pos_tmp = [fn(torch.tensor([-1], dtype=torch.float32))]
-    code_pos_tmp += [
-        fn(torch.tensor([i], dtype=torch.float32)) for i in range(len(ops))
-    ]
-    code_pos_tmp.append(fn(torch.tensor([1e5], dtype=torch.float32)))
-    # code_pos = torch.stack(code_pos_tmp, dim=0)  # (len, dim_p)
+    code_pos_tmp = [fn(torch.tensor([i], dtype=torch.float32)) for i in range(len(ops))]
 
-    adj = torch.tensor(matrix)
-    start_idx = torch.argmin(adj.sum(0)) + 1
-    end_idx = torch.argmin(adj.sum(1)) + 1
-
-    code = [
-        torch.cat(
-            [
-                code_ops_tmp[0],
-                code_pos_tmp[0],
-                code_ops_tmp[start_idx],
-                code_pos_tmp[start_idx],
-            ],
-            dim=0,
-        )
-    ]
-    for i in range(1, len(ops)):
+    # encode source and target feature position embedding of each node
+    code_sour_tmp = []
+    code_targ_tmp = []
+    for i in range(len(ops)):
+        i_sour = 0
+        i_targ = 0
         for j in range(i):
             if matrix[j][i] == 1:
-                code.append(
-                    torch.cat(
-                        [
-                            code_ops_tmp[j],
-                            code_pos_tmp[j],
-                            code_ops_tmp[i],
-                            code_pos_tmp[i],
-                        ],
-                        dim=0,
-                    )
-                )
-    code.append(
-        torch.cat(
-            [code_ops_tmp[end_idx], code_pos_tmp[end_idx], code_ops_tmp[-1], code_pos_tmp[-1],],
-            dim=0,
-        )
-    )
+                i_sour += code_pos_tmp[j]
+        for j in range(i + 1, len(ops)):
+            if matrix[i][j] == 1:
+                i_targ += code_pos_tmp[j]
+        if isinstance(i_sour, int):
+            i_sour = fn(torch.tensor([-1], dtype=torch.float32))
+        if isinstance(i_targ, int):
+            i_targ = fn(torch.tensor([1e5], dtype=torch.float32))
+        code_sour_tmp.append(i_sour)
+        code_targ_tmp.append(i_targ)
+    code_sour = torch.stack(code_sour_tmp, dim=0)
+    code_targ = torch.stack(code_targ_tmp, dim=0)
 
-    code = torch.stack(code)
+    code = torch.cat([code_ops, code_sour, code_targ], dim=-1)
     return code
 
 
