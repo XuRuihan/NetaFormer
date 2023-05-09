@@ -1,4 +1,4 @@
-BASE_DIR="./"
+BASE_DIR="."
 
 for PRETRAINED in "nasbench201_latest" "nasbench201_model_best" "nasbench201_model_best_ema"; do
 

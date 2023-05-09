@@ -84,16 +84,45 @@ def argLoader():
     parser.add_argument("--device", type=int, default=0)
     parser.add_argument("--n_workers", type=int, default=32)
 
-    # Optimizer
-    parser.add_argument("--learning_rate", type=float, default=1e-3)
-    parser.add_argument("--weight_decay", type=float, default=0.01)
-    parser.add_argument("--adam_epsilon", type=float, default=1e-8)
+    # Optimizer parameters
+    group = parser.add_argument_group('Optimizer parameters')
+    group.add_argument("--opt", default='adamw', type=str, metavar='OPTIMIZER',
+                    help='Optimizer (default: "adamw"')
+    group.add_argument("--opt-eps", default=None, type=float, metavar='EPSILON',
+                    help='Optimizer Epsilon (default: None, use opt default)')
+    group.add_argument("--opt-betas", default=None, type=float, nargs='+', metavar='BETA',
+                    help='Optimizer Betas (default: None, use opt default)')
+    group.add_argument('--momentum', type=float, default=0.9, metavar='M',
+                    help='Optimizer momentum (default: 0.9)')
+    group.add_argument("--weight_decay", type=float, default=0.01,
+                    help='weight decay (default: 0.05)')
+
+    # Learning rate schedule parameters
+    group = parser.add_argument_group('Learning rate schedule parameters')
+    group.add_argument('--sched', default='cosine', type=str, metavar='SCHEDULER',
+                    help='LR scheduler (default: "cosine"')
+    group.add_argument("--lr", type=float, default=1e-3, metavar='LR',
+                    help='learning rate (default: 0.05)')
+    group.add_argument('--lr_cycle_mul', type=float, default=1.0, metavar='MULT',
+                    help='learning rate cycle len multiplier (default: 1.0)')
+    group.add_argument('--min_lr', type=float, default=1e-5, metavar='LR',
+                    help='lower lr bound for cyclic schedulers that hit 0 (1e-5)')
+    group.add_argument('--decay_rate', '--dr', type=float, default=0.1, metavar='RATE',
+                    help='LR decay rate (default: 0.1)')
+    group.add_argument('--warmup-lr', type=float, default=1e-6, metavar='LR',
+                    help='warmup learning rate (default: 1e-6)')
+    group.add_argument('--warmup-epochs', type=int, default=5, metavar='N',
+                    help='epochs to warmup LR, if scheduler supports')
+    group.add_argument('--lr-cycle-limit', type=int, default=1, metavar='N',
+                    help='learning rate cycle limit, cycles enabled if > 1')
+
+    group.add_argument("--epochs", type=int, default=4000, metavar='N',
+                    help='number of epochs to train (default: 4000)')
 
     # Training Parameters
     parser.add_argument("--do_train", action="store_true")
     parser.add_argument("--resume", default="", help="resume from checkpoint")
     parser.add_argument("--batch_size", type=int, default=256)
-    parser.add_argument("--max_epoch", type=int, default=10)
     parser.add_argument("--save_path", type=str, default="model/")
     parser.add_argument("--save_epoch_freq", type=int, default=1000)
     parser.add_argument("--pretrained_path", type=str, default=None)  # test

@@ -93,7 +93,7 @@ def save_check_point(
     path = config.save_path
     dataset = config.dataset
     torch.save(state, path + "/" + fileName)
-    if is_best and epoch > (0.7 * config.max_epoch):
+    if is_best and epoch > (0.7 * config.epochs):
         shutil.copyfile(
             path + "/" + fileName, path + "/" + dataset + "_model_best.pth.tar"
         )

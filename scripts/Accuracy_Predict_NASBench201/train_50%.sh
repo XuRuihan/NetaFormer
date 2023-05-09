@@ -12,9 +12,9 @@ python $BASE_DIR/main.py \
     --graph_d_ff 768 \
     --graph_n_head 6 \
     --depths 6 1 1 1 \
-    --max_epoch 4000 \
+    --epochs 4000 \
     --model_ema \
-    --learning_rate 1e-4 \
+    --lr 1e-4 \
     --lambda_diff 0.1 \
     --save_path "checkpoints_50%/" \
     --embed_type "nerf" \

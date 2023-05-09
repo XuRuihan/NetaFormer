@@ -40,7 +40,7 @@ def train(config):
     best_tau, best_mape, best_error = -99, 1e5, 0
     if config.model_ema and config.model_ema_eval:
         best_tau_ema, best_mape_ema, best_error_ema = -99, 1e5, 0
-    for epoch_idx in range(start_epoch_idx, config.max_epoch):
+    for epoch_idx in range(start_epoch_idx, config.epochs):
         metric = Metric()
         t0 = time.time()
 
@@ -111,7 +111,7 @@ def train(config):
                 t1 = time.time()
                 speed = (t1 - t0) / (batch_idx + 1)
                 exp_time = format_second(
-                    speed * (n_batches * (config.max_epoch - epoch_idx + 1) - batch_idx)
+                    speed * (n_batches * (config.epochs - epoch_idx + 1) - batch_idx)
                 )
 
                 lr = optimizer.state_dict()["param_groups"][0]["lr"]
@@ -119,7 +119,7 @@ def train(config):
                     "Epoch[{}/{}]({}/{}) Lr:{:.7f} Loss:{:.7f} L_MSE:{:.7f} L_rank:{:.7f} L_con:{:.7f} KT:{:.5f} MAPE:{:.5f} "
                     "ErrBnd(0.1):{:.5f} Speed:{:.2f} ms/iter {}".format(
                         epoch_idx,
-                        config.max_epoch,
+                        config.epochs,
                         batch_idx,
                         n_batches,
                         lr,

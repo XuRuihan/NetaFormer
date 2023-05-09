@@ -1,7 +1,13 @@
 import torch
 from timm.utils import ModelEma
-from transformers import AdamW
-from transformers import get_linear_schedule_with_warmup
+from timm.optim import create_optimizer_v2, optimizer_kwargs
+
+# from timm.scheduler import create_scheduler
+from transformers import (
+    get_linear_schedule_with_warmup,
+    get_cosine_schedule_with_warmup,
+    get_cosine_with_hard_restarts_schedule_with_warmup,
+)
 
 from model import NetEncoder
 from layers import DiffLoss
@@ -45,34 +51,22 @@ def init_layers(args, LOG):
 
 
 def init_optim(args, net, nbatches, warm_step=0.1):
-    no_decay = ["bias", "LayerNorm.weight"]
-    optimizer_grouped_parameters = [
-        {
-            "params": [
-                p
-                for n, p in net.named_parameters()
-                if not any(nd in n for nd in no_decay)
-            ],
-            "weight_decay": args.weight_decay,
-        },
-        {
-            "params": [
-                p for n, p in net.named_parameters() if any(nd in n for nd in no_decay)
-            ],
-            "weight_decay": 0.0,
-        },
-    ]
+    optimizer = create_optimizer_v2(net, **optimizer_kwargs(args))
+    # lr_scheduler, num_epochs = create_scheduler(args, optimizer)
 
-    optimizer = AdamW(
-        optimizer_grouped_parameters, lr=args.learning_rate, eps=args.adam_epsilon
-    )
-    scheduler = get_linear_schedule_with_warmup(
+    # lr_scheduler = get_linear_schedule_with_warmup(
+    #     optimizer,
+    #     num_warmup_steps=warm_step * nbatches * args.epochs,
+    #     num_training_steps=nbatches * args.epochs,
+    # )
+    lr_scheduler = get_cosine_with_hard_restarts_schedule_with_warmup(
         optimizer,
-        num_warmup_steps=warm_step * nbatches * args.max_epoch,
-        num_training_steps=nbatches * args.max_epoch,
+        num_warmup_steps=warm_step * nbatches * args.epochs,
+        num_training_steps=nbatches * args.epochs,
+        num_cycles=1,
     )
-    print("warmup steps:", warm_step * nbatches * args.max_epoch)
-    return optimizer, scheduler
+    print("warmup steps:", warm_step * nbatches * args.epochs)
+    return optimizer, lr_scheduler
 
 
 def auto_load_model(args, model, model_ema=None, optimizer=None, scheduler=None):

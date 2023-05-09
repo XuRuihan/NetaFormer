@@ -1,13 +1,12 @@
 # from nasbench import api
 from api import NASBench, ModelSpec
-from random import randint
 import json
 import numpy as np
 from collections import OrderedDict
 
 # Replace this string with the path to the downloaded nasbench.tfrecord before
 # executing.
-NASBENCH_TFRECORD = "data/nasbench_only108.tfrecord"
+NASBENCH_TFRECORD = "data/nasbench101/nasbench_only108.tfrecord"
 
 INPUT = "input"
 OUTPUT = "output"
